@@ -1,0 +1,58 @@
+import torch
+from random import randrange
+from dotenv import load_dotenv
+from datasets import load_dataset
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+
+from format_instructions import format_instruction
+
+
+def main():
+    load_dotenv()
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    model_id = "mistralai/Mistral-7B-v0.1"
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16,
+    )
+
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        quantization_config=bnb_config,
+        device_map="auto",
+    )
+    model.config.pretraining_tp = 1
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    tokenizer.pad_token = tokenizer.eos_token
+
+    ds = load_dataset("neuralwork/fashion-style-instruct")
+    sample = ds["train"][randrange(len(ds["train"]))]
+    prompt = format_instruction(sample)
+
+    input_ids = tokenizer(prompt, return_tensors="pt", truncation=True).input_ids.to(device)
+    with torch.inference_mode():
+        outputs = model.generate(
+            input_ids=input_ids,
+            max_new_tokens=800,
+            do_sample=True,
+            top_p=0.9,
+            temperature=0.9,
+        )
+
+    outputs = outputs.detach().cpu().numpy()
+    outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
+    output = outputs[0][len(prompt) :]
+
+    print(f"Instruction:\n{sample['input']}\n")
+    print(f"Context:\n{sample['context']}\n")
+    print(f"Ground truth:\n{sample['completion']}\n")
+    print(f"Generated output:\n{output}\n")
+
+
+if __name__ == "__main__":
+    main()
+
+

@@ -1,0 +1,16 @@
+accelerate>=0.32.0
+bitsandbytes>=0.43.1
+datasets>=2.19.0
+evaluate>=0.4.2
+peft>=0.11.1
+python-dotenv>=1.0.1
+torch>=2.1.0
+transformers>=4.41.0
+trl>=0.8.6
+sentencepiece>=0.2.0
+huggingface-hub>=0.23.0
+einops>=0.7.0
+tqdm>=4.66.0
+scikit-learn>=1.4.0
+numpy>=1.26.0
+
