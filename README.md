@@ -1,6 +1,6 @@
 ## 微调 Mistral 7B（QLoRA 实战项目）
 
-本项目依据 `微调Mistral7B.txt` 文档内容复刻与整理，提供使用 Hugging Face Transformers + PEFT + TRL 进行 QLoRA 微调的可运行示例；并附带基线与微调后推理脚本。
+本项目提供使用 Hugging Face Transformers + PEFT + TRL 进行 QLoRA 微调的可运行示例；并附带基线与微调后推理脚本。
 
 目标场景：生成式推荐（以“时尚搭配推荐”为例）。
 
